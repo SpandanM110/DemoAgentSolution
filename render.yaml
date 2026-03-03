@@ -1,0 +1,17 @@
+# Render Blueprint - Demo Agent Backend
+# Deploy: Connect this repo to Render and use this blueprint, or create a Web Service manually.
+
+services:
+  - type: web
+    runtime: python
+    name: demo-agent-backend
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

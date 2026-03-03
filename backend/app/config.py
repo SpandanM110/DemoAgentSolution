@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     MAX_DOCUMENT_CHARS: int = 15000
     UPLOAD_DIR: str = "uploads"
 
+    # CORS - comma-separated origins for allowed frontend URLs
+    CORS_ORIGINS: str = "https://demo-agent-solution.vercel.app,http://localhost:3000,http://127.0.0.1:3000"
+
     # Rate limiting
     GROQ_RPM: int = 30
     GROQ_TPM: int = 12000
