@@ -1,10 +1,13 @@
 import json
 import asyncio
+import logging
 from typing import Any
 
 from app.agents.llm import rate_limited_llm_call, parse_json_response
 from app.agents import prompts
 from app.services.websocket_manager import ws_manager
+
+logger = logging.getLogger(__name__)
 
 
 async def _emit(session_id: str, event_type: str, agent: str, data: dict | None = None, progress: float = 0.0, message: str = ""):
@@ -52,6 +55,7 @@ async def problem_analyzer_node(state: dict[str, Any]) -> dict[str, Any]:
             "agent_logs": [{"agent": agent, "status": "complete", "output_summary": f"Found {len(problems)} problems"}],
         }
     except Exception as e:
+        logger.warning("%s failed: %s", agent, e)
         await _emit(session_id, "agent_error", agent, message=str(e))
         return {
             "problems": [],
@@ -84,6 +88,7 @@ async def task_prioritizer_node(state: dict[str, Any]) -> dict[str, Any]:
             "agent_logs": [{"agent": agent, "status": "complete", "output_summary": f"Created {len(tasks)} tasks"}],
         }
     except Exception as e:
+        logger.warning("%s failed: %s", agent, e)
         await _emit(session_id, "agent_error", agent, message=str(e))
         return {
             "prioritized_tasks": [],
@@ -119,6 +124,7 @@ async def _specialist_node(
             "agent_logs": [{"agent": agent_name, "status": "complete"}],
         }
     except Exception as e:
+        logger.warning("%s failed: %s", agent_name, e)
         await _emit(session_id, "agent_error", agent_name, message=str(e))
         return {
             "specialist_outputs": [{"agent": agent_name, "error": str(e)}],
@@ -175,6 +181,7 @@ async def solution_synthesizer_node(state: dict[str, Any]) -> dict[str, Any]:
             "agent_logs": [{"agent": agent, "status": "complete"}],
         }
     except Exception as e:
+        logger.warning("%s failed: %s", agent, e)
         await _emit(session_id, "agent_error", agent, message=str(e))
         return {
             "synthesized_solution": {},
@@ -207,6 +214,7 @@ async def report_generator_node(state: dict[str, Any]) -> dict[str, Any]:
             "agent_logs": [{"agent": agent, "status": "complete"}],
         }
     except Exception as e:
+        logger.warning("%s failed: %s", agent, e)
         await _emit(session_id, "agent_error", agent, message=str(e))
         return {
             "final_report": f"Error generating report: {str(e)}",

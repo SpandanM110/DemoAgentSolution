@@ -29,9 +29,9 @@ export default function AnalysisPage() {
     }
   }, [sessionId, storeSessionId]);
 
-  // Fetch results when completed
+  // Fetch results when completed or error (to get error message)
   useEffect(() => {
-    if (status === "completed") {
+    if (status === "completed" || status === "error") {
       fetchResults(sessionId);
     }
   }, [status, sessionId, fetchResults]);

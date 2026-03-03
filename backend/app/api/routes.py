@@ -1,7 +1,10 @@
 import os
 import uuid
 import asyncio
+import logging
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
+
+logger = logging.getLogger(__name__)
 
 from app.config import get_settings
 from app.models.schemas import UploadResponse, AnalyzeResponse, StatusResponse, ResultsResponse
@@ -84,11 +87,12 @@ async def _run_pipeline(session_id: str):
         session["status"] = "completed"
         session["current_agent"] = None
     except Exception as e:
+        logger.exception("Pipeline failed for session %s: %s", session_id, e)
         session["status"] = "error"
         session["error"] = str(e)
         await ws_manager.broadcast(session_id, {
             "type": "pipeline_error",
-            "agent": None,
+            "agent": session.get("current_agent"),
             "message": str(e),
             "progress": 0,
             "data": {},
@@ -138,6 +142,7 @@ async def get_results(session_id: str):
         return ResultsResponse(
             session_id=session_id,
             status=session["status"],
+            errors=[session["error"]] if session.get("error") else None,
         )
 
     return ResultsResponse(
