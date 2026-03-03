@@ -120,7 +120,6 @@ async def _specialist_node(
 
         return {
             "specialist_outputs": [{"agent": agent_name, "output": parsed}],
-            "current_agent": agent_name,
             "agent_logs": [{"agent": agent_name, "status": "complete"}],
         }
     except Exception as e:
